@@ -4,7 +4,7 @@ Hearts game point management system in flutter and sqlite database.
 
 ## Built Windows And Android App
 
-Inside "App-Releases" folder:
+Inside "Hearts-App-Releases" folder:
 1. app-release.apk file for android app
 2. "Release" folder for windows app
 

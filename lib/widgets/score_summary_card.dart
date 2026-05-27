@@ -100,6 +100,9 @@ class ScoreSummaryCard extends StatelessWidget {
   final ResponsiveLayout layout;
   final Future<void> Function() onAddRound;
   final VoidCallback onShowResult;
+  final VoidCallback onToggleTheme;
+  final VoidCallback onConfirmRestart;
+  final ThemeMode themeMode;
 
   const ScoreSummaryCard({
     super.key,
@@ -108,6 +111,9 @@ class ScoreSummaryCard extends StatelessWidget {
     required this.layout,
     required this.onAddRound,
     required this.onShowResult,
+    required this.onToggleTheme,
+    required this.onConfirmRestart,
+    required this.themeMode,
   });
 
   @override
@@ -117,19 +123,37 @@ class ScoreSummaryCard extends StatelessWidget {
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: EdgeInsets.all(
-          layout.isMobile
-              ? 10
-              : layout.isTablet
-              ? 12
-              : layout.isSmartTV
-              ? 24
-              : 14,
-        ),
-        child: layout.isMobile || layout.isTablet
-            ? _mobileContent(colorScheme)
-            : _wideContent(colorScheme),
+      child: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(
+              layout.isPhoneLandscape
+                  ? 6
+                  : layout.isMobile
+                  ? 10
+                  : layout.isTablet
+                  ? 12
+                  : layout.isSmartTV
+                  ? 24
+                  : 14,
+            ),
+            child: layout.isMobile || layout.isTablet
+                ? _mobileContent(colorScheme)
+                : _wideContent(colorScheme),
+          ),
+          Positioned(
+            top: layout.isPhonePortrait ? 8.0 : 0,
+            right: 0,
+            child: _TopRightButtons(
+              layout: layout,
+              themeMode: themeMode,
+              onToggleTheme: onToggleTheme,
+              onShowResult: onShowResult,
+              onConfirmRestart: onConfirmRestart,
+              isInitialized: controller.isInitialized,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -155,7 +179,7 @@ class ScoreSummaryCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _titleAndTotals(colorScheme),
-        const SizedBox(height: 12.0),
+        SizedBox(height: layout.isPhoneLandscape ? 6.0 : 12.0),
         SizedBox(
           width: double.infinity,
           child: _RoundActionButton(
@@ -212,14 +236,24 @@ class ScoreSummaryCard extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: layout.isMobile ? 10.0 : 12.0),
+        SizedBox(
+          height: layout.isPhoneLandscape
+              ? 6.0
+              : layout.isMobile
+              ? 10.0
+              : 12.0,
+        ),
         _scorePills(colorScheme),
       ],
     );
   }
 
   Widget _scorePills(ColorScheme colorScheme) {
-    final gap = layout.isMobile ? 8.0 : 12.0 * layout.largeScreenScale;
+    final gap = layout.isPhoneLandscape
+        ? 6.0
+        : layout.isMobile
+        ? 8.0
+        : 12.0 * layout.largeScreenScale;
 
     return Column(
       children: [
@@ -230,7 +264,7 @@ class ScoreSummaryCard extends StatelessWidget {
             Expanded(child: _scorePillAt(1, colorScheme)),
           ],
         ),
-        SizedBox(height: gap),
+        SizedBox(height: layout.isPhoneLandscape ? 4.0 : gap),
         Row(
           children: [
             Expanded(child: _scorePillAt(2, colorScheme)),
@@ -278,7 +312,9 @@ class _ScorePill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       constraints: BoxConstraints(
-        minHeight: layout.isMobile
+        minHeight: layout.isPhoneLandscape
+            ? 36.0
+            : layout.isMobile
             ? 48.0
             : layout.isSmartTV
             ? 78.0 * layout.largeScreenScale
@@ -424,5 +460,104 @@ class _RoundActionButton extends StatelessWidget {
     if (layout.isTablet) return 14.0 * layout.largeScreenScale;
     if (layout.isSmartTV) return 20.0 * layout.largeScreenScale;
     return 16.0 * layout.largeScreenScale;
+  }
+}
+
+class _TopRightButtons extends StatelessWidget {
+  final ResponsiveLayout layout;
+  final ThemeMode themeMode;
+  final VoidCallback onToggleTheme;
+  final VoidCallback onShowResult;
+  final VoidCallback onConfirmRestart;
+  final bool isInitialized;
+
+  const _TopRightButtons({
+    required this.layout,
+    required this.themeMode,
+    required this.onToggleTheme,
+    required this.onShowResult,
+    required this.onConfirmRestart,
+    required this.isInitialized,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final iconSize = layout.isPhonePortrait
+        ? 18.0
+        : layout.isMobile
+        ? 24.0
+        : 28.0 * layout.largeScreenScale;
+    final buttonSize = layout.isPhonePortrait
+        ? 32.0
+        : layout.isMobile
+        ? 40.0
+        : 48.0 * layout.largeScreenScale;
+    final gap = layout.isPhonePortrait ? 6.0 : 4.0;
+
+    return Padding(
+      padding: EdgeInsets.all(
+        layout.isPhonePortrait
+            ? 4.0
+            : layout.isMobile
+            ? 6.0
+            : 8.0 * layout.largeScreenScale,
+      ),
+      child: layout.isPhonePortrait
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: _buildButtons(buttonSize, iconSize, gap),
+            )
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: _buildButtons(buttonSize, iconSize, gap),
+            ),
+    );
+  }
+
+  List<Widget> _buildButtons(double buttonSize, double iconSize, double gap) {
+    return [
+      SizedBox(
+        width: buttonSize,
+        height: buttonSize,
+        child: IconButton(
+          onPressed: onToggleTheme,
+          iconSize: iconSize,
+          tooltip: themeMode == ThemeMode.dark
+              ? 'Use Light Theme'
+              : 'Use Dark Theme',
+          icon: Icon(
+            themeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
+          ),
+        ),
+      ),
+      SizedBox(
+        width: layout.isPhonePortrait ? 0 : gap,
+        height: layout.isPhonePortrait ? gap : 0,
+      ),
+      SizedBox(
+        width: buttonSize,
+        height: buttonSize,
+        child: IconButton(
+          onPressed: isInitialized ? onShowResult : null,
+          iconSize: iconSize,
+          tooltip: 'View Results',
+          icon: const Icon(Icons.insights),
+        ),
+      ),
+      SizedBox(
+        width: layout.isPhonePortrait ? 0 : gap,
+        height: layout.isPhonePortrait ? gap : 0,
+      ),
+      SizedBox(
+        width: buttonSize,
+        height: buttonSize,
+        child: IconButton(
+          onPressed: isInitialized ? onConfirmRestart : null,
+          iconSize: iconSize,
+          tooltip: 'Restart Game',
+          icon: const Icon(Icons.restart_alt),
+        ),
+      ),
+    ];
   }
 }

@@ -43,7 +43,8 @@ class ScoreTable extends StatelessWidget {
                 0: FixedColumnWidth(layout.isMobile ? 70.0 : 96.0),
               };
 
-        final table = ConstrainedBox(
+        // Header table
+        final headerTable = ConstrainedBox(
           constraints: BoxConstraints(minWidth: tableMinWidth),
           child: Table(
             border: TableBorder.all(
@@ -74,6 +75,21 @@ class ScoreTable extends StatelessWidget {
                   ),
                 ],
               ),
+            ],
+          ),
+        );
+
+        // Body table
+        final bodyTable = ConstrainedBox(
+          constraints: BoxConstraints(minWidth: tableMinWidth),
+          child: Table(
+            border: TableBorder.all(
+              color: colorScheme.outlineVariant,
+              width: 1,
+            ),
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            columnWidths: columnWidths,
+            children: [
               for (
                 var roundIndex = 0;
                 roundIndex < controller.rounds.length;
@@ -92,14 +108,44 @@ class ScoreTable extends StatelessWidget {
           ),
         );
 
-        if (layout.isPhonePortrait) return table;
+        final header = layout.isPhonePortrait
+            ? headerTable
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: headerTable,
+              );
 
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: table,
+        final bodyContent = layout.isPhonePortrait
+            ? bodyTable
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: bodyTable,
+              );
+
+        return Column(
+          children: [
+            header,
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.only(
+                  bottom: _bottomScrollSpace(constraints.maxHeight, layout),
+                ),
+                child: bodyContent,
+              ),
+            ),
+          ],
         );
       },
     );
+  }
+
+  double _bottomScrollSpace(double maxHeight, ResponsiveLayout layout) {
+    if (layout.isPhoneLandscape) return 160.0;
+    if (layout.isPhonePortrait) return 140.0;
+    if (layout.isTablet) return 160.0 * layout.largeScreenScale;
+    if (layout.isSmartTV) return 200.0 * layout.largeScreenScale;
+    return 160.0 * layout.largeScreenScale;
   }
 }
 

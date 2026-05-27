@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'controllers/game_controller.dart';
@@ -233,60 +233,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final layout = ResponsiveLayout.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: _appBarHeight(layout),
-        title: Text(
-          'Hearts Score Manager',
-          style: TextStyle(fontSize: _appBarFontSize(layout)),
-        ),
-        actions: [
-          Tooltip(
-            message: widget.themeMode == ThemeMode.dark
-                ? 'Use Light Theme'
-                : 'Use Dark Theme',
-            child: IconButton(
-              onPressed: widget.onToggleTheme,
-              iconSize: _appBarIconSize(layout),
-              padding: EdgeInsets.all(_appBarIconPadding(layout)),
-              constraints: BoxConstraints.tightFor(
-                width: _appBarActionSize(layout),
-                height: _appBarActionSize(layout),
-              ),
-              icon: Icon(
-                widget.themeMode == ThemeMode.dark
-                    ? Icons.light_mode
-                    : Icons.dark_mode,
-              ),
-            ),
-          ),
-          Tooltip(
-            message: 'View Results',
-            child: IconButton(
-              onPressed: _controller.isInitialized ? _showResult : null,
-              iconSize: _appBarIconSize(layout),
-              padding: EdgeInsets.all(_appBarIconPadding(layout)),
-              constraints: BoxConstraints.tightFor(
-                width: _appBarActionSize(layout),
-                height: _appBarActionSize(layout),
-              ),
-              icon: const Icon(Icons.insights),
-            ),
-          ),
-          Tooltip(
-            message: 'Restart Game',
-            child: IconButton(
-              onPressed: _controller.isInitialized ? _confirmRestart : null,
-              iconSize: _appBarIconSize(layout),
-              padding: EdgeInsets.all(_appBarIconPadding(layout)),
-              constraints: BoxConstraints.tightFor(
-                width: _appBarActionSize(layout),
-                height: _appBarActionSize(layout),
-              ),
-              icon: const Icon(Icons.restart_alt),
-            ),
-          ),
-        ],
-      ),
       body: _controller.isInitialized
           ? Padding(
               padding: EdgeInsets.all(_bodyPadding(layout)),
@@ -297,43 +243,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onRemoveRound: _handleRemoveRound,
                 onAddRound: _controller.addRound,
                 onShowResult: _showResult,
+                onToggleTheme: widget.onToggleTheme,
+                onConfirmRestart: _confirmRestart,
+                themeMode: widget.themeMode,
               ),
             )
           : _LoadingView(layout: layout),
     );
-  }
-
-  double _appBarFontSize(ResponsiveLayout layout) {
-    if (layout.isMobile) return 18.0;
-    if (layout.isTablet) return 20.0 * layout.largeScreenScale;
-    if (layout.isSmartTV) return 28.0 * layout.largeScreenScale;
-    return 24.0 * layout.largeScreenScale;
-  }
-
-  double _appBarHeight(ResponsiveLayout layout) {
-    if (layout.isMobile) return 64.0;
-    if (layout.isTablet) return 72.0 * layout.largeScreenScale;
-    if (layout.isSmartTV) return 88.0 * layout.largeScreenScale;
-    return 76.0 * layout.largeScreenScale;
-  }
-
-  double _appBarIconSize(ResponsiveLayout layout) {
-    if (layout.isMobile) return 30.0;
-    if (layout.isTablet) return 34.0 * layout.largeScreenScale;
-    if (layout.isSmartTV) return 40.0 * layout.largeScreenScale;
-    return 34.0 * layout.largeScreenScale;
-  }
-
-  double _appBarActionSize(ResponsiveLayout layout) {
-    if (layout.isMobile) return 52.0;
-    if (layout.isTablet) return 60.0 * layout.largeScreenScale;
-    if (layout.isSmartTV) return 72.0 * layout.largeScreenScale;
-    return 60.0 * layout.largeScreenScale;
-  }
-
-  double _appBarIconPadding(ResponsiveLayout layout) {
-    if (layout.isMobile) return 8.0;
-    return 10.0 * layout.largeScreenScale;
   }
 
   double _bodyPadding(ResponsiveLayout layout) {

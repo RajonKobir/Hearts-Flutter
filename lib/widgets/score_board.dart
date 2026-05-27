@@ -13,6 +13,9 @@ class ScoreBoard extends StatelessWidget {
   final Future<void> Function(int roundIndex) onRemoveRound;
   final Future<void> Function() onAddRound;
   final VoidCallback onShowResult;
+  final VoidCallback onToggleTheme;
+  final VoidCallback onConfirmRestart;
+  final ThemeMode themeMode;
 
   const ScoreBoard({
     super.key,
@@ -22,45 +25,42 @@ class ScoreBoard extends StatelessWidget {
     required this.onRemoveRound,
     required this.onAddRound,
     required this.onShowResult,
+    required this.onToggleTheme,
+    required this.onConfirmRestart,
+    required this.themeMode,
   });
 
   @override
   Widget build(BuildContext context) {
     final layout = ResponsiveLayout.of(context);
 
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.only(bottom: _bottomScrollSpace(context, layout)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (controller.isGameOver) GameOverBanner(layout: layout),
-          ScoreSummaryCard(
-            controller: controller,
-            totals: controller.playerTotals,
-            layout: layout,
-            onAddRound: onAddRound,
-            onShowResult: onShowResult,
-          ),
-          SizedBox(height: layout.isMobile ? 8.0 : 12.0),
-          ScoreTable(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Sticky header section
+        if (controller.isGameOver) GameOverBanner(layout: layout),
+        ScoreSummaryCard(
+          controller: controller,
+          totals: controller.playerTotals,
+          layout: layout,
+          onAddRound: onAddRound,
+          onShowResult: onShowResult,
+          onToggleTheme: onToggleTheme,
+          onConfirmRestart: onConfirmRestart,
+          themeMode: themeMode,
+        ),
+        SizedBox(height: layout.isMobile ? 8.0 : 12.0),
+        // Scrollable table section
+        Expanded(
+          child: ScoreTable(
             controller: controller,
             layout: layout,
             onScoreChanged: onScoreChanged,
             onMoonHit: onMoonHit,
             onRemoveRound: onRemoveRound,
           ),
-        ],
-      ),
+        ),
+      ],
     );
-  }
-
-  double _bottomScrollSpace(BuildContext context, ResponsiveLayout layout) {
-    final safeBottom = MediaQuery.viewPaddingOf(context).bottom;
-    if (layout.isPhoneLandscape) return safeBottom + 112.0;
-    if (layout.isPhonePortrait) return safeBottom + 80.0;
-    if (layout.isTablet) return safeBottom + 104.0 * layout.largeScreenScale;
-    if (layout.isSmartTV) return safeBottom + 128.0 * layout.largeScreenScale;
-    return safeBottom + 88.0 * layout.largeScreenScale;
   }
 }

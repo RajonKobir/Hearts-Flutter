@@ -46,7 +46,7 @@ class ResponsiveLayout {
 
   double get pointSummaryFontSize {
     if (isPhonePortrait) return 19.0;
-    if (isMobile) return 20.0;
+    if (isMobile) return 23.0;
     if (isTablet) return 27.0 * largeScreenScale;
     if (isSmartTV) return 32.0 * largeScreenScale;
     return 26.0 * largeScreenScale;
