@@ -83,7 +83,7 @@ class GameController extends ChangeNotifier {
       playerNames: updatedNames,
       updatedAt: DateTime.now(),
     );
-    playerNameControllers[playerIndex].text = normalizedName;
+    playerNameControllers[playerIndex].text = '';
     notifyListeners();
 
     await _queueGameSave();
@@ -183,12 +183,16 @@ class GameController extends ChangeNotifier {
   }
 
   Future<void> restartGame() async {
+    // Preserve current player names before resetting
+    final preservedPlayerNames = List<String>.from(_currentGame.playerNames);
+
     final game = await _resetStoredGame();
     _rounds = [
       RoundScore(roundNumber: 1, scores: [0, 0, 0, 0]),
     ];
     _isGameOver = false;
-    _currentGame = game;
+    // Apply preserved player names to the new game
+    _currentGame = game.copyWith(playerNames: preservedPlayerNames);
     _syncPlayerNameControllers();
     _syncScoreControllers(overwriteText: true);
     notifyListeners();
@@ -300,7 +304,7 @@ class GameController extends ChangeNotifier {
 
   void _syncPlayerNameControllers() {
     for (var i = 0; i < playerNameControllers.length; i++) {
-      playerNameControllers[i].text = _currentGame.playerNames[i];
+      playerNameControllers[i].text = '';
     }
   }
 

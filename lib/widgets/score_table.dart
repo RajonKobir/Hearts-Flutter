@@ -530,6 +530,7 @@ class _PlayerNameHeaderCell extends StatelessWidget {
                 ? 4.0
                 : 8.0,
           ),
+          hintText: controller.currentGame.playerNames[playerIndex],
           isDense: true,
           filled: true,
           fillColor: colorScheme.surfaceContainerHighest,

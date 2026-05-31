@@ -163,12 +163,15 @@ class ScoreSummaryCard extends StatelessWidget {
       children: [
         Expanded(child: _titleAndTotals(colorScheme)),
         SizedBox(width: layout.isMobile ? 8.0 : 16.0),
-        _RoundActionButton(
-          isGameOver: controller.isGameOver,
-          layout: layout,
-          onAddRound: onAddRound,
-          canAddRound: controller.canAddRound,
-          onShowResult: onShowResult,
+        Align(
+          alignment: Alignment.center,
+          child: _RoundActionButton(
+            isGameOver: controller.isGameOver,
+            layout: layout,
+            onAddRound: onAddRound,
+            canAddRound: controller.canAddRound,
+            onShowResult: onShowResult,
+          ),
         ),
       ],
     );
